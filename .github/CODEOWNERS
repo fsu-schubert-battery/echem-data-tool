@@ -1,0 +1,10 @@
+# Require review from at least one of the following persons:
+#  - Christian Stolze (FSU Jena, Germany)
+#  - Sebastian Witt (FSU Jena, Germany)
+#  - Felix Nagler (HIPOLE Jena, Germany)
+
+*    @csunijena @SebaWitt @FelixNagler-FSU 
+
+# Or, for more granular—only specific directories:
+# src/**    @alice
+# docs/**   @bob

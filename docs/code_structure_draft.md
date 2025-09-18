@@ -134,4 +134,4 @@ class MprStandardFile(BaseFile):
 
 #### Visualization
 
-![[figures/mermaid-diagram-2025-09-18-135458.png]]
+![Overview of the dependencies](figures/mermaid-diagram-2025-09-18-135458.png)

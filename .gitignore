@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files / system files
+__pycache__/
+*.py[cod]
+*$py.class
+.DS_Store
+Thumbs.db
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.env/
+.venv/
+
+# Pytest cache
+.pytest_cache/
+
+# Example data and analysis examples
+example_data/
+examples/
+
+# Generated documentation
+docs/echem_data_tool/

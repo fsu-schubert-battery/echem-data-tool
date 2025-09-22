@@ -1,0 +1,32 @@
+[project]
+name = "echem-data-tool"
+version = "0.1.0"
+description = "Data evaluation tool for electrochemical experiments"
+authors = [
+    {name = "Christian Stolze", email = "christian.stolze@uni-jena.de"},
+    {name = "Sebastian Witt", email = "sebastian.witt@uni-jena.de"},
+    {name = "Felix Nagler", email = "felix.nagler@helmholtz-berlin.de"}
+]
+readme = "README.md"
+license = {text = "AGPL-3.0-or-later"}
+requires-python = ">=3.13"
+dependencies = [
+    "pandas (>=2.3.2,<3.0.0)",
+    "xarray (>=2025.9.0,<2026.0.0)",
+    "yadg (>=6.2.1,<7.0.0)",
+    "pycodata (>=2.2.0,<3.0.0)",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0", 
+    "pdoc>=15.0.0"
+]
+
+[build-system]
+requires = ["poetry-core>=2.1.3"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pdoc = "^15.0.4"
+

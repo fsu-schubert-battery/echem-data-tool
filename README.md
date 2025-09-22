@@ -18,15 +18,19 @@ pip install echem-data-tool
 
 ## Documentation
 
-This project uses `pdoc` to generate the documentation. Execute the following command to compile the documentation:
+This project uses `pdoc` to generate the documentation. 
 
+### Generate Locally
 ```bash
-
-# Or directly with pdoc
-poetry run pdoc --output-dir docs --docformat google echem_data_tool
+# Generate documentation
+PYTHONPATH=src poetry run pdoc --output-dir docs --docformat google echem_data_tool
 ```
 
 Then open `docs/index.html` in your browser.
+
+### Online Documentation
+Documentation is automatically deployed to GitHub Pages on every push to the main branch:
+- **GitHub Pages**: [https://fsu-schubert-battery.github.io/echem-data-tool/](https://fsu-schubert-battery.github.io/echem-data-tool/)
 
 ## Development
 

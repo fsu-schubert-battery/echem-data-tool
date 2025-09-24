@@ -9,13 +9,9 @@ Standardizing metadata while maximizing value, flexibility, and impact is a sign
 
 With this approach and the more specfic Battery Checklist from [Joule](https://doi.org/10.1016/j.joule.2020.12.026) the first draft was designed.
 
-## Metadata fields
-
-### Tier one
-
 ## Metadata example json
 
-'''json
+```json
 {
   "metadata": {
     "tier_one": {
@@ -69,7 +65,7 @@ With this approach and the more specfic Battery Checklist from [Joule](https://d
     "converter_version": "1.1.0"
   }
 }
-'''
+```
 
 ## Metadata explanation
 

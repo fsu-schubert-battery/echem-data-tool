@@ -7,8 +7,8 @@ This document defines the hierarchical netCDF file format for storing electroche
 The file format follows a hierarchical structure designed to maintain the relationship between physical electrochemical experiments and their data:
 
 ```
-Experiment (Root)
-├── Metadata (experiment description, etc.)
+Study (Root)
+├── Metadata (study description, etc.)
 ├── Cells/
 │   ├── Cell 1
 │   │   ├── Metadata (cell setup, configuration, etc.)
@@ -36,10 +36,10 @@ Experiment (Root)
 
 ## Hierarchical Structure
 
-### 1. Experiment Level (Root Group)
-The root group represents a complete electrochemical experiment and contains:
+### 1. Study Level (Root Group)
+The root group represents a complete electrochemical study and contains:
 - **File metadata**: Creation date, echem_data_tool version, data format version
-- **Global metadata**: Experiment name, date, operator, laboratory conditions
+- **Global metadata**: Study name, date, operator, laboratory conditions
 - **Cells group**: Container for all electrochemical cells
 - **Future extension groups**: Space for additional top-level data types, if ever required
 
@@ -70,7 +70,7 @@ Additional time series data recorded in parallel with electrochemical measuremen
 ### Overall Hierarchy
 ```mermaid
 graph TD
-    A[Experiment Root] --> B[Cells]
+    A[Study Root] --> B[Cells]
     A --> Z[Future Extensions ...]
     
     B --> C[Cell_001]
@@ -140,7 +140,7 @@ graph LR
 
 ### File Structure with Naming Conventions
 ```
-/                                   # Root group (Experiment)
+/                                   # Root group (Study)
 ├── metadata                        # Global attributes
 ├── cells/                          # Cells container group
 │   ├── cell_001/                   # Cell group
@@ -179,7 +179,7 @@ graph LR
 ```
 
 ### Group Naming Conventions
-- **Root group**: Contains experiment-level metadata
+- **Root group**: Contains study-level metadata
 - **Cells group**: Named as `cells` - contains all cell subgroups
 - **Cell groups**: Named as `cell_XXX` where XXX is a zero-padded number (001, 002, ...)
 - **Technique groups**: Named as `technique_XXX_YYYY` where:
@@ -197,16 +197,16 @@ The file format uses a hierarchical metadata structure with NetCDF attributes de
 
 **Note [by CS]:** A common definition of the basic [metadata is under development](ecell_metadata_specs.md). Below are only examples on how to sort and structure the metadata into the file format specification. The level-based metadata is a suggestion, which could make use of the "attributes" in netCDF. Not sure yet, if a simple JSON object at the beginning with all metadata would make more sense.
 
-### Experiment-Level Metadata (Root/Global Attributes)
-Global information about the entire experiment stored as NetCDF attributes:
-- Core identifiers: experiment name, creation date, format version, operator
+### Study-Level Metadata (Root/Global Attributes)
+Global information about the entire study stored as NetCDF attributes:
+- Core identifiers: study name, creation date, format version, operator
 - Context information: laboratory, project, ambient conditions
-- Extensible for additional experimental parameters
+- Extensible for additional study parameters
 
 **NetCDF Attribute Specification:**
 ```
 // Mandatory attributes
-title: string                    // Experiment name
+title: string                    // Study name
 creation_date: string            // ISO 8601 datetime
 format_version: string           // Semantic version (e.g., "1.0.0")
 creator: string                  // Operator/researcher name(s) (e.g., "Jane Doe, Max Mustermann,...)
@@ -215,7 +215,7 @@ creator: string                  // Operator/researcher name(s) (e.g., "Jane Doe
 // Optional attributes  
 institution: string              // Laboratory or organization
 project: string                  // Associated project name
-description: string              // Experiment description
+description: string              // Study description
 ...
 ```
 

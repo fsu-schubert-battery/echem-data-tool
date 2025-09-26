@@ -195,117 +195,471 @@ graph LR
 
 The file format uses a hierarchical metadata structure with NetCDF attributes defined at each level. NetCDF attributes support primitive data types (strings, integers, floats, arrays) and are stored as key-value pairs within groups. All attributes are technically optional in NetCDF, but this specification defines mandatory attributes for format compliance.
 
-**Note [by CS]:** A common definition of the basic [metadata is under development](ecell_metadata_specs.md). Below are only examples on how to sort and structure the metadata into the file format specification. The level-based metadata is a suggestion, which could make use of the "attributes" in netCDF. Not sure yet, if a simple JSON object at the beginning with all metadata would make more sense.
+**Note:** The metadata schemas below are based on the [Battery Data Genome (BDG) approach](ecell_metadata_specs.md) with tier-based organization. However, the metadata are distributed across the hierarchical netCDF structure according to logical grouping principles. The tier classification is documented for each metadata field to maintain BDG compatibility while ensuring logical data organization.
 
 ### Study-Level Metadata (Root/Global Attributes)
-Global information about the entire study stored as NetCDF attributes:
-- Core identifiers: study name, creation date, format version, operator
-- Context information: laboratory, project, ambient conditions
-- Extensible for additional study parameters
+Global information about the entire study stored as NetCDF attributes. Contains file format metadata and essential study-wide parameters.
 
-**NetCDF Attribute Specification:**
-```
-// Mandatory attributes
-title: string                    // Study name
-creation_date: string            // ISO 8601 datetime
-format_version: string           // Semantic version (e.g., "1.0.0")
-creator: string                  // Operator/researcher name(s) (e.g., "Jane Doe, Max Mustermann,...)
-...
-
-// Optional attributes  
-institution: string              // Laboratory or organization
-project: string                  // Associated project name
-description: string              // Study description
-...
+**JSON Schema:**
+```json
+{
+  "file_metadata": {
+    "format_version": "1.0.0",
+    "timestamp": "2025-07-15T08:00:00Z" // creation time of this netCDF file
+  },
+  "study_metadata": {
+    "id": "20250715_AB-EC35-2_1_PFPMAm-co-TEGDMA1,0_Zn_2MZnClO4_RC_data",
+    "description": "Investigation of a ferrocene-based polymer",
+    "contributors": [
+      {
+        "name": "Jane Doe",
+        "email": "jane.doe@example-university.edu",
+        "affiliation": "Example University",
+        "additional_info": [ // optional/additional information
+          {
+            "name": "orcid",
+            "value": "https://orcid.org/0000-0000-0000-0000",
+          },
+          {
+            "name": "contribution",
+            "value": "Synthesis of polymer",
+          }
+        ]
+      },
+      {
+        "name": "John Smith",
+        "email": "john.smith@example-university.edu",
+        "affiliation": "Example University",
+        "additional_info": [ // optional/additional information
+          {
+            "name": "orcid",
+            "value": "https://orcid.org/0000-0000-0000-0001",
+          },
+          {
+            "name": "contribution",
+            "value": "Study leader / operator",
+          }
+        ]
+      },
+      {
+        "name": "Alice Johnson",
+        "email": "alice.johnson@example-university.edu",
+        "affiliation": "Example University",
+        "additional_info": [ // optional/additional information
+          {
+            "name": "orcid",
+            "value": "https://orcid.org/0000-0000-0000-0002",
+          },
+          {
+            "name": "contribution",
+            "value": "Principal investigator",
+          }
+        ]
+      },
+    ],
+    "funding": [
+      {
+        "agency": "National Science Foundation",
+        "country": "USA",
+        "grant_number": "CHE-2023456",
+      },
+      {
+        "agency": "European Research Council",
+        "country": "EU",
+        "grant_number": "ERC-2022-STG-101039847",
+      },
+      {
+        "agency": "Example University",
+        "country": "USA", 
+        "grant_number": "INT-2024-001",
+      }
+    ]
+  }
+}
 ```
 
 ### Cell-Level Metadata (Cell Group Attributes)
-Physical and configuration details for each electrochemical cell stored as NetCDF attributes:
-- Essential properties: cell ID, assembly date, electrode area
-- Material descriptions: electrode materials, electrolyte, separator
-- Physical parameters: geometry, volume, theoretical capacity
-- Open for cell-specific characterization data
+Physical and configuration details for each electrochemical cell. Contains essential cell identifiers, chemistry, and comprehensive material/physical parameters organized by importance level. The difficulty here is to capture the different aspects of all types of electrochemical cells (e.g., coin cells, flow cells, three-electrode cells, etc.) into one generic JSON schema, which is flexible and yet descriptive.
 
-**NetCDF Attribute Specification:**
-```
-// Mandatory attributes
-cell_id: string                  // Unique cell identifier
-assembly_date: string            // ISO 8601 datetime
-...
-
-// Optional attributes - Physical Properties
-electrode_area: float            // Active electrode area in cm²
-cell_volume: float               // Internal cell volume in mL
-theoretical_capacity: float      // Theoretical capacity in mAh
-...
-
-// Optional attributes - Materials
-anode_material: string           // Anode active material
-cathode_material: string         // Cathode active material
-electrolyte_composition: string  // Electrolyte description
-separator_type: string           // Separator material/type
-...
-
-// Optional attributes - Configuration
-cell_geometry: string            // Physical cell configuration
-assembly_environment: string     // Assembly conditions (e.g., "argon glovebox")
-notes: string                    // Additional cell-specific information
-...
+**JSON Schema:**
+```json
+{
+  "primary": {
+    "id": "AB-EC35-2",
+    "type": "Three-electrode Swagelok-cell",
+    "chemistry": "Zn | Zn(ClO4)2, NH4ClO4 (aq) | Ferrocene | Ag", // use standard nomenclature for electrochemical cells here?
+    "nominal_capacity_ah": 0.000127,
+    "assembly_timestamp": "2025-07-14T12:13:00Z",
+    "assembly_environment": "argon glovebox",
+    "eol_timestamp": "2025-07-20T19:50:14Z", // eol = end of life
+  },
+  "secondary": { // in the ideal case this should cover all different cell types
+    "components": [
+      {
+        "name": "positive_half_cell",
+        "materials": [
+          {
+            "name": "PFPMAm-co-TEGDMA (1%)",
+            "type": "active_material",
+            "wt_percent": 65
+          },
+          {
+            "name": "Super P",
+            "type": "conductive_additive",
+            "wt_percent": 30
+          },
+          {
+            "name": "High viscosity CMC (Sigma Aldrich)",
+            "type": "binder",
+            "wt_percent": 5
+          }
+        ],
+        "procedures": [ // details on procedures, like manufacturing procedures
+          {
+            "name": "coating_method",
+            "value": "doctor blade",
+            "unit": null
+          },
+          {
+            "name": "drying_temperature",
+            "value": 80,
+            "unit": "°C"
+          },
+          {
+            "name": "drying_time",
+            "value": 12,
+            "unit": "hours"
+          },
+          {
+            "name": "calendering_pressure",
+            "value": 5.0,
+            "unit": "MPa"
+          },
+          {
+            "name": "punching_tool",
+            "value": "hand puncher",
+            "unit": null
+          },
+          {
+            "name": "storage_temperature",
+            "value": 25,
+            "unit": "°C"
+          },
+          {
+            "name": "storage_duration",
+            "value": 100,
+            "unit": "d"
+          },
+        ],
+        "properties": [ // physical and chemical properties
+          {
+            "name": "diameter",
+            "value": 0.6,
+            "unit": "cm"
+          },
+          {
+            "name": "mass",
+            "value": 0.00100,
+            "unit": "g"
+          }
+        ],
+      },
+      {
+        "name": "negative_half_cell",
+        "materials": [
+          {
+            "name": "PFPMAm-co-TEGDMA (1%)",
+            "type": "active_material",
+            "wt_percent": 65
+          },
+          {
+            "name": "Super P",
+            "type": "conductive_additive",
+            "wt_percent": 30
+          },
+          {
+            "name": "High viscosity CMC (Sigma Aldrich)",
+            "type": "binder",
+            "wt_percent": 5
+          }
+        ],
+        "procedures": [ // details on procedures, like manufacturing procedures
+          {
+            "name": "coating_method",
+            "value": "doctor blade",
+            "unit": null
+          },
+          {
+            "name": "drying_temperature",
+            "value": 80,
+            "unit": "°C"
+          },
+          {
+            "name": "drying_time",
+            "value": 24,
+            "unit": "hours"
+          },
+          {
+            "name": "calendering_pressure",
+            "value": 5.0,
+            "unit": "MPa"
+          },
+          {
+            "name": "punching_tool",
+            "value": "hand puncher",
+            "unit": null
+          },
+          {
+            "name": "storage_temperature",
+            "value": 25,
+            "unit": "°C"
+          },
+          {
+            "name": "storage_duration",
+            "value": 2,
+            "unit": "d"
+          },
+        ],
+      },
+      {
+        "name": "reference_electrode",
+        "materials": [
+          {
+            "name": "Silver",
+            "type": "wire",
+            "wt_percent": 100
+          },
+        ],
+        "procedures": [ // details on procedures, like manufacturing procedures
+        ],
+        "properties": [
+          {
+            "name": "length",
+            "value": 0.1,
+            "unit": "cm"
+          },
+          {
+            "name": "diameter",
+            "value": 0.0025,
+            "unit": "cm"
+          },
+        ],
+      },
+      {
+        "name": "separator",
+        "materials": [
+          {
+            "name": "Whatman glass microfiber grade GF/D",
+            "type": "",
+            "wt_percent": 100
+          },
+        ],
+        "procedures": [ // details on procedures, like manufacturing procedures
+          {
+            "name": "punching_tool",
+            "value": "hand puncher",
+            "unit": null
+          },
+        ],
+        "properties": [
+          {
+            "name": "diameter",
+            "value": 1.2,
+            "unit": "cm"
+          },
+        ],
+      },
+    ],
+    "electrolyte": {
+      "name": "electrolyte",
+      "materials": [
+        {
+          "name": "water",
+          "type": "solvent",
+          "wt_percent": 89.5
+        },
+        {
+          "name": "Zn(ClO4)2",
+          "type": "supporting_electrolyte",
+          "wt_percent": 10.0
+        },
+        {
+          "name": "NH4ClO4",
+          "type": "supporting_electrolyte", 
+          "wt_percent": 0.5
+        }
+      ],
+      "procedures": [
+        {
+          "name": "stirring_time",
+          "value": 30,
+          "unit": "minutes"
+        },
+        {
+          "name": "filtration",
+          "value": "0.22 µm syringe filter",
+          "unit": null
+        }
+      ],
+      "properties": [
+        {
+          "name": "added_volume",
+          "value": 0.15,
+          "unit": "ml"
+        },
+        {
+          "name": "pH",
+          "value": 2.1,
+          "unit": null
+        },
+        {
+          "name": "conductivity",
+          "value": 45.2,
+          "unit": "mS/cm"
+        }
+      ]
+    },
+  },
+  "tertiary": {
+    "additional_notes": [ // add an arbitrary amount of additional notes with a short title for identification and a note text
+      {
+        "title": "assembly",
+        "text": "Oxygen level in glovebox was higher than usual (100 ppm)"
+      },
+      {
+        "title": "equilibration procedure",
+        "text": "Electrode was stored at room temperature for 24h after assembly"
+      },
+      {
+        "title": "postmortem observation",
+        "text": "Strong coloration of separator was observed after disassembly."
+      },
+    ]
+  }
+}
 ```
 
 ### Technique-Level Metadata (Technique Group Attributes)
-Parameters and conditions for each electrochemical measurement stored as NetCDF attributes:
-- Core timing: technique type, start/end times, sequence number
-- Method parameters: current setpoints, potential ranges, scan rates
-- Termination criteria and technique-specific settings
-- Flexible structure for emerging electrochemical methods
+Parameters and conditions for each electrochemical measurement. Contains essential measurement details and equipment information.
 
-**NetCDF Attribute Specification:**
-```
-// Mandatory attributes
-sequence_number: int             // Order of execution within cell
-technique_type: string           // Measurement technique (e.g., "OCV", "cycling", "CV")
-start_time: string               // ISO 8601 datetime
-...
-
-// Optional attributes - Timing
-end_time: string                 // ISO 8601 datetime
-duration: float                  // Technique duration in seconds
-...
-
-// Optional attributes - Method Parameters (technique-dependent settings)
-scan_rate: float                 // Scan rate in V/s (for CV)
-potential_range: float[2]        // [min, max] potential in V
-...
-
-// Optional attributes - Equipment
-instrument_model: string         // Measurement equipment
-channel_number: int              // Instrument channel used
-...
+**JSON Schema:**
+```json
+{
+  "primary": {
+    "id": 1, // this number should be unique and will also be used to get the sequence of applied techniques
+    "auxilary": "False", // always false for techniques, only true for auxilary data
+    "type": "cyclic_voltammetry",
+    "start": "2025-07-15T09:30:00Z",
+    "end": "2025-07-15T10:15:00Z"
+  },
+  "secondary": {
+    "devices": [
+      {
+        "name": "VMP-3",
+        "type": "potentiostat",
+        "manufacturer": "Biologic, France",
+        "model": "VMP-3",
+        "software": "EC-Lab",
+        "software_version": "11.61"
+      },
+      {
+        "name": "Pine AFMSRCE",
+        "type": "rotating_disk_electrode",
+        "manufacturer": "Pine Research Instrumentation",
+        "model": "AFMSRCE",
+      }
+    ],
+    "settings": [ // do we need this or can we rely on the experimental data only?
+      {
+        "name": "scan_rate",
+        "value": 0.050,
+        "unit": "V/s"
+      },
+      {
+        "name": "potential_range",
+        "value": [-0.8, 0.4],
+        "unit": "V"
+      },
+      {
+        "name": "rotation_speed_range",
+        "value": [0, 5000],
+        "unit": "rpm"
+      },
+    ]
+  },
+  "tertiary": {
+    "additional_notes": [
+      {
+        "title": "setup",
+        "text": "Initial equilibration period of 300s before measurement start"
+      },
+      {
+        "title": "sparging",
+        "text": "The electrolyte was sparged with nitrogen for 10 minutes"
+      },
+      {
+        "title": "blanketing",
+        "text": "The electrolyte was blanketed with nitrogen during the measurement"
+      }
+    ]
+  }
+}
 ```
 
 ### Auxiliary Data Metadata (Auxiliary Group Attributes)
-Information for parallel measurements and monitoring stored as NetCDF attributes:
-- Data identification: measurement type, timing, equipment details
-- Calibration and processing parameters
-- Synchronization information with electrochemical techniques
+Information for parallel measurements and monitoring. Contains essential sensor information and synchronization details.
 
-**NetCDF Attribute Specification:**
-```
-// Mandatory attributes
-data_type: string                // Type of auxiliary data (e.g., "temperature", "UV-Vis")
-start_time: string               // ISO 8601 datetime
-...
-
-// Optional attributes - Measurement Info
-sensor_model: string             // Sensor/instrument model
-sensor_serial: string            // Sensor serial number
-measurement_units: string        // Data units (e.g., "°C", "nm")
-sampling_rate: float             // Sampling frequency in Hz
-...
-
-// Optional attributes - Synchronization
-sync_technique: string           // Associated electrochemical technique
-time_offset: float               // Time offset relative to technique start in seconds
-...
+**JSON Schema:**
+```json
+{
+  "primary": {
+    "id": 1,
+    "auxilary": "True",
+    "type": "temperature",
+    "start": "2025-07-15T09:30:00Z",
+    "end": "2025-07-15T10:15:00Z",
+    "parent_techniques": [1, 2]
+  },
+  "secondary": {
+    "devices": [
+      {
+        "name": "Thermocouple Logger",
+        "type": "temperature_sensor",
+        "manufacturer": "Omega Engineering",
+        "model": "HH309A",
+        "software": "Omega Software",
+        "software_version": "3.2.1"
+      }
+    ],
+    "settings": [
+      {
+        "name": "sampling_rate",
+        "value": 1.0,
+        "unit": "Hz"
+      },
+      {
+        "name": "measurement_range",
+        "value": [-200, 850],
+        "unit": "°C"
+      },
+      {
+        "name": "resolution",
+        "value": 0.1,
+        "unit": "°C"
+      }
+    ]
+  },
+  "tertiary": {
+    "additional_notes": [
+      {
+        "title": "sensor_placement",
+        "text": "Thermocouple placed 2 mm from cell surface"
+      },
+      {
+        "title": "calibration",
+        "text": "Sensor calibrated against ice bath (0°C) and boiling water (100°C)"
+      }
+    ]
+  }
+}
 ```

@@ -301,7 +301,8 @@ Physical and configuration details for each electrochemical cell. Contains essen
           {
             "name": "PFPMAm-co-TEGDMA (1%)",
             "type": "active_material",
-            "wt_percent": 65
+            "wt_percent": 65 // maybe a "value" and "unit" field would be better to be more flexible (e.g., allows stating masses)?
+                             // Or do we need a "properties"/"additional_info"-list for each material as well to capture things like "vendor", etc.?
           },
           {
             "name": "Super P",
@@ -469,56 +470,56 @@ Physical and configuration details for each electrochemical cell. Contains essen
           },
         ],
       },
-    ],
-    "electrolyte": {
-      "name": "electrolyte",
-      "materials": [
-        {
-          "name": "water",
-          "type": "solvent",
-          "wt_percent": 89.5
-        },
-        {
-          "name": "Zn(ClO4)2",
-          "type": "supporting_electrolyte",
-          "wt_percent": 10.0
-        },
-        {
-          "name": "NH4ClO4",
-          "type": "supporting_electrolyte", 
-          "wt_percent": 0.5
-        }
-      ],
-      "procedures": [
-        {
-          "name": "stirring_time",
-          "value": 30,
-          "unit": "minutes"
-        },
-        {
-          "name": "filtration",
-          "value": "0.22 µm syringe filter",
-          "unit": null
-        }
-      ],
-      "properties": [
-        {
-          "name": "added_volume",
-          "value": 0.15,
-          "unit": "ml"
-        },
-        {
-          "name": "pH",
-          "value": 2.1,
-          "unit": null
-        },
-        {
-          "name": "conductivity",
-          "value": 45.2,
-          "unit": "mS/cm"
-        }
-      ]
-    },
+      {
+        "name": "electrolyte",
+        "materials": [
+          {
+            "name": "water",
+            "type": "solvent",
+            "wt_percent": 89.5
+          },
+          {
+            "name": "Zn(ClO4)2",
+            "type": "supporting_electrolyte",
+            "wt_percent": 10.0
+          },
+          {
+            "name": "NH4ClO4",
+            "type": "supporting_electrolyte", 
+            "wt_percent": 0.5
+          }
+        ],
+        "procedures": [
+          {
+            "name": "stirring_time",
+            "value": 30,
+            "unit": "minutes"
+          },
+          {
+            "name": "filtration",
+            "value": "0.22 µm syringe filter",
+            "unit": null
+          }
+        ],
+        "properties": [
+          {
+            "name": "volume_in_cell",
+            "value": 0.15,
+            "unit": "ml"
+          },
+          {
+            "name": "pH",
+            "value": 2.1,
+            "unit": null
+          },
+          {
+            "name": "conductivity",
+            "value": 45.2,
+            "unit": "mS/cm"
+          }
+        ]
+      }
+    ]
   },
   "tertiary": {
     "additional_notes": [ // add an arbitrary amount of additional notes with a short title for identification and a note text

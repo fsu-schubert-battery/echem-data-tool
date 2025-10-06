@@ -209,7 +209,7 @@ Global information about the entire study stored as NetCDF attributes. Contains 
   },
   "study_metadata": {
     "id": "20250715_AB-EC35-2_1_PFPMAm-co-TEGDMA1,0_Zn_2MZnClO4_RC_data",
-    "description": "Investigation of a ferrocene-based polymer",
+    "description": "Investigation of a ferrocene-based polymer",  // rename to objective? have a separate field?
     "contributors": [
       {
         "name": "Jane Doe",
@@ -287,32 +287,53 @@ Physical and configuration details for each electrochemical cell. Contains essen
   "primary": {
     "id": "AB-EC35-2",
     "type": "Three-electrode Swagelok-cell",
-    "chemistry": "Zn | Zn(ClO4)2, NH4ClO4 (aq) | Ferrocene | Ag", // use standard nomenclature for electrochemical cells here?
-    "nominal_capacity_ah": 0.000127,
-    "assembly_timestamp": "2025-07-14T12:13:00Z",
-    "assembly_environment": "argon glovebox",
-    "eol_timestamp": "2025-07-20T19:50:14Z", // eol = end of life
+    "objective": "Objective of this cell's experiment",
+    "chemistry": {  // this field is for broad description (high-level chemistry/type not detailed chemical composition)
+      "cathode": "Ferrocene",
+      "anode": "Zn",
+      "electrolyte": "organic", // electrolyte type
+    },
+    "assembly": {
+      "timestamp": "2025-07-14T12:13:00Z",
+      "manufacturer": "", // Cell assembler/provider/manufacturer (person or company or institution)
+      "environment": "argon glovebox",
+    },
+    "nominal_capacity_ah": 0.000127, // theoretical capacity (academic) or nominal (commercial)
   },
   "secondary": { // in the ideal case this should cover all different cell types
     "components": [
       {
-        "name": "positive_half_cell",
+        "name": "working_electrode",
         "materials": [
           {
+            "id": "SW-001",
             "name": "PFPMAm-co-TEGDMA (1%)",
             "type": "active_material",
-            "wt_percent": 65 // maybe a "value" and "unit" field would be better to be more flexible (e.g., allows stating masses)?
-                             // Or do we need a "properties"/"additional_info"-list for each material as well to capture things like "vendor", etc.?
+            "amount": { // define amount/number/fraction/...
+              "value": 60,
+              "unit": "wt.-%"
+            }
           },
           {
             "name": "Super P",
             "type": "conductive_additive",
-            "wt_percent": 30
+            "amount": { // define amount/number/fraction/...
+              "value": 35,
+              "unit": "wt.-%"
+            }
           },
           {
             "name": "High viscosity CMC (Sigma Aldrich)",
             "type": "binder",
-            "wt_percent": 5
+            "amount": { // define amount/number/fraction/...
+              "value": 5,
+              "unit": "wt.-%"
+            }
+          },
+          {
+            "name": "Aluminum",
+            "type": "current_collector",
+            "amount": null
           }
         ],
         "procedures": [ // details on procedures, like manufacturing procedures
@@ -366,29 +387,62 @@ Physical and configuration details for each electrochemical cell. Contains essen
         ],
       },
       {
-        "name": "negative_half_cell",
+        "name": "counter_electrode",
         "materials": [
           {
             "name": "PFPMAm-co-TEGDMA (1%)",
             "type": "active_material",
-            "wt_percent": 65
+            "amount": { // define amount/number/fraction/...
+              "value": 65,
+              "unit": "wt.-%"
+            }
           },
           {
             "name": "Super P",
             "type": "conductive_additive",
-            "wt_percent": 30
+            "amount": { // define amount/number/fraction/...
+              "value": 30,
+              "unit": "wt.-%"
+            }
           },
           {
-            "name": "High viscosity CMC (Sigma Aldrich)",
+            "name": "PVDF (Sigma Aldrich)",
             "type": "binder",
-            "wt_percent": 5
+            "amount": { // define amount/number/fraction/...
+              "value": 5,
+              "unit": "wt.-%"
+            }
           }
         ],
-        "procedures": [ // details on procedures, like manufacturing procedures
-          {
+        "procedures": [ // details on procedures, like manufacturing procedures for this component
+          { // procedures that represent detailed descriptions can consist of lists of text chunks to represent multiple steps
+            "name": "slurry_preparation",
+            "value": [
+              "Dry materials were separately weighed and mixed", // Step 1
+              "PVDF was added to 2 mL of NMP to swell overnight", // Step 2
+              "Dry powders and NMP with PVDF were added to a Dispermat 2000" // Step 3
+            ],
+            "unit": null
+          },
+          { // procedures that represent methods, can simply use the name of the method
             "name": "coating_method",
             "value": "doctor blade",
             "unit": null
+          },
+          { 
+            "name": "coating_thickness",
+            "value": 200,
+            "unit": "µm"
+          },
+          { 
+            "name": "coating_speed",
+            "value": 0.5,
+            "unit": "cm / s"
+          },
+          { // procedures can also be represented with a number and unit
+            "name": "drying_time",
+            "value": 24,
+            "unit": "hours"
           },
           {
             "name": "drying_temperature",
@@ -396,18 +450,13 @@ Physical and configuration details for each electrochemical cell. Contains essen
             "unit": "°C"
           },
           {
-            "name": "drying_time",
-            "value": 24,
-            "unit": "hours"
-          },
-          {
             "name": "calendering_pressure",
             "value": 5.0,
             "unit": "MPa"
           },
           {
-            "name": "punching_tool",
-            "value": "hand puncher",
+            "name": "punching",
+            "value": "circular electrodes obtained by punching with a hand puncher",
             "unit": null
           },
           {
@@ -428,7 +477,7 @@ Physical and configuration details for each electrochemical cell. Contains essen
           {
             "name": "Silver",
             "type": "wire",
-            "wt_percent": 100
+            "amount": null,
           },
         ],
         "procedures": [ // details on procedures, like manufacturing procedures
@@ -452,7 +501,7 @@ Physical and configuration details for each electrochemical cell. Contains essen
           {
             "name": "Whatman glass microfiber grade GF/D",
             "type": "",
-            "wt_percent": 100
+            "amount": null
           },
         ],
         "procedures": [ // details on procedures, like manufacturing procedures
@@ -476,17 +525,26 @@ Physical and configuration details for each electrochemical cell. Contains essen
           {
             "name": "water",
             "type": "solvent",
-            "wt_percent": 89.5
+            "amount": { // define amount/number/fraction/...
+              "value": 20,
+              "unit": "mL"
+            }
           },
           {
             "name": "Zn(ClO4)2",
             "type": "supporting_electrolyte",
-            "wt_percent": 10.0
+            "amount": { // define amount/number/fraction/...
+              "value": 1.20,
+              "unit": "g"
+            }
           },
           {
             "name": "NH4ClO4",
             "type": "supporting_electrolyte", 
-            "wt_percent": 0.5
+            "amount": { // define amount/number/fraction/...
+              "value": 2.27,
+              "unit": "g"
+            }
           }
         ],
         "procedures": [
@@ -522,18 +580,30 @@ Physical and configuration details for each electrochemical cell. Contains essen
     ]
   },
   "tertiary": {
-    "additional_notes": [ // add an arbitrary amount of additional notes with a short title for identification and a note text
+    "additional_notes": [ // add an arbitrary amount of additional notes and values with a short title (i.e., name) for identification and a value (number, text, etc.)
       {
-        "title": "assembly",
-        "text": "Oxygen level in glovebox was higher than usual (100 ppm)"
+        "name": "setup_id", // would be the internal ID of a, e.g., swagelok cell (think about naming)
+        "value": 1
       },
       {
-        "title": "equilibration procedure",
-        "text": "Electrode was stored at room temperature for 24h after assembly"
+        "name": "assembly",
+        "value": "Oxygen level in glovebox was higher than usual (100 ppm)"
       },
       {
-        "title": "postmortem observation",
-        "text": "Strong coloration of separator was observed after disassembly."
+        "name": "equilibration procedure",
+        "value": "Electrode was stored at room temperature for 24h after assembly"
+      },
+      { // should this be in or not -> too labbook'ish?
+        "name": "postmortem observation",
+        "value": "Strong coloration of separator was observed after disassembly"
+      },
+      {
+        "name": "membrane_supplier",
+        "value": "Sigma Aldrich"
+      },
+      { 
+        "name": "membrane_purchase_date",
+        "value": "01.10.1843"
       },
     ]
   }
@@ -548,29 +618,36 @@ Parameters and conditions for each electrochemical measurement. Contains essenti
 {
   "primary": {
     "id": 1, // this number should be unique and will also be used to get the sequence of applied techniques
-    "auxilary": "False", // always false for techniques, only true for auxilary data
-    "type": "cyclic_voltammetry",
+    "group": {
+      "name": "nicholson_analysis", // optional: group name
+      "group_id": 1,  // unique ID for a single group, but multiple techniques/auxilaries can belong to the same group
+    },
+    "auxiliary": false, // always false for techniques, only true for auxilary data
+    "type": "cyclic_voltammetry",  // NOTE: different scan rates would be set up as different techniques bundled in a group
     "start": "2025-07-15T09:30:00Z",
     "end": "2025-07-15T10:15:00Z"
   },
   "secondary": {
     "devices": [
       {
-        "name": "VMP-3",
+        "name": "Biologic VMP-3 (in K003)",
         "type": "potentiostat",
         "manufacturer": "Biologic, France",
         "model": "VMP-3",
-        "software": "EC-Lab",
-        "software_version": "11.61"
+        "software": {
+          "name": "EC-Lab",
+          "version": "11.61"
+        }
       },
       {
         "name": "Pine AFMSRCE",
         "type": "rotating_disk_electrode",
         "manufacturer": "Pine Research Instrumentation",
         "model": "AFMSRCE",
+        "software": null
       }
     ],
-    "settings": [ // do we need this or can we rely on the experimental data only?
+    "settings": [
       {
         "name": "scan_rate",
         "value": 0.050,
@@ -586,22 +663,35 @@ Parameters and conditions for each electrochemical measurement. Contains essenti
         "value": [0, 5000],
         "unit": "rpm"
       },
+      {
+        "name": "I_range", // measurement resolution
+        "value": 0.00001,
+        "unit": "A"
+      },
     ]
   },
   "tertiary": {
     "additional_notes": [
       {
-        "title": "setup",
-        "text": "Initial equilibration period of 300s before measurement start"
+        "name": "potentiostat_channel",
+        "value": 8
       },
       {
-        "title": "sparging",
-        "text": "The electrolyte was sparged with nitrogen for 10 minutes"
-      },
-      {
-        "title": "blanketing",
-        "text": "The electrolyte was blanketed with nitrogen during the measurement"
+        "name": "potentiostat_channel_calibration",
+        "value": "2025-07-15T09:30:00Z"
       }
+      {
+        "name": "setup",
+        "value": "Initial equilibration period of 300s before measurement start"
+      },
+      {
+        "name": "sparging",
+        "value": "The electrolyte was sparged with nitrogen for 10 minutes"
+      },
+      {
+        "name": "blanketing",
+        "value": "The electrolyte was blanketed with nitrogen during the measurement"
+      },
     ]
   }
 }
@@ -614,12 +704,15 @@ Information for parallel measurements and monitoring. Contains essential sensor 
 ```json
 {
   "primary": {
-    "id": 1,
-    "auxilary": "True",
+    "id": 1, // this number should be unique and will also be used to get the sequence of applied auxilaries
+    "group": {
+      "name": "nicholson_analysis", // optional: group name
+      "group_id": 1,  // unique ID for a single group, but multiple techniques/auxilaries can belong to the same group
+    },
+    "auxiliary": true,
     "type": "temperature",
     "start": "2025-07-15T09:30:00Z",
     "end": "2025-07-15T10:15:00Z",
-    "parent_techniques": [1, 2]
   },
   "secondary": {
     "devices": [
@@ -628,8 +721,10 @@ Information for parallel measurements and monitoring. Contains essential sensor 
         "type": "temperature_sensor",
         "manufacturer": "Omega Engineering",
         "model": "HH309A",
-        "software": "Omega Software",
-        "software_version": "3.2.1"
+        "software": {
+          "name": "Omega Software",
+          "version": "3.2.1"
+        }
       }
     ],
     "settings": [
@@ -653,12 +748,12 @@ Information for parallel measurements and monitoring. Contains essential sensor 
   "tertiary": {
     "additional_notes": [
       {
-        "title": "sensor_placement",
-        "text": "Thermocouple placed 2 mm from cell surface"
+        "name": "sensor_placement",
+        "value": "Thermocouple placed 2 mm from cell surface"
       },
       {
-        "title": "calibration",
-        "text": "Sensor calibrated against ice bath (0°C) and boiling water (100°C)"
+        "name": "calibration",
+        "value": "Sensor calibrated against ice bath (0°C) and boiling water (100°C)"
       }
     ]
   }

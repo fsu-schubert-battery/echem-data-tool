@@ -17,9 +17,5 @@ dist/
 # Pytest cache
 .pytest_cache/
 
-# Example data and analysis examples
-example_data/
-examples/
-
 # Generated documentation
 docs/echem_data_tool/

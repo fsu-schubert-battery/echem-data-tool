@@ -116,6 +116,9 @@ or pull requests on [GitHub](https://github.com/fsu-schubert-battery/echem-data-
 *Generated with [pdoc](https://pdoc.dev).*
 """
 
+from . import data
+from . import analyzer
+
 try:
     from importlib.metadata import version
     __version__ = version("echem-data-tool")
@@ -124,3 +127,8 @@ except ImportError:
     __version__ = "development"
 except Exception:
     __version__ = "development"
+
+__all__ = [
+    'data',
+    'analyzer',
+]

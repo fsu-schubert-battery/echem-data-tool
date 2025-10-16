@@ -184,7 +184,7 @@ graph LR
 - **Cell groups**: Named as `cell_XXX` where XXX is a zero-padded number (001, 002, ...)
 - **Technique groups**: Named as `technique_XXX_YYYY` where:
   - XXX is the sequence number (001, 002, ...)
-  - YYYY is the technique type (OCV, cycling, CV, EIS, etc.)
+  - YYYY is the technique type (OCV, CYCLING, CV, EIS, etc.)
 - **Auxiliary data groups**: Named as `auxiliary_XXX_YYYY` where:
   - XXX is the sequence number (001, 002, ...)
   - YYYY is the data type (temperature, UVVis, pressure, etc.)
@@ -273,6 +273,9 @@ Global information about the entire study stored as NetCDF attributes. Contains 
         "country": "USA", 
         "grant_number": "INT-2024-001",
       }
+    ],
+    "cells": [
+      { /* CELL-LEVEL METADATA HERE */ }
     ]
   }
 }
@@ -299,6 +302,12 @@ Physical and configuration details for each electrochemical cell. Contains essen
       "environment": "argon glovebox",
     },
     "nominal_capacity_ah": 0.000127, // theoretical capacity (academic) or nominal (commercial)
+    "techniques": [
+      { /* TECHNIQUE-LEVEL METADATA HERE (see definitions below) */ }
+    ],
+    "auxiliaries": [
+      { /* AUXILIARY-LEVEL METADATA HERE (see definitions below) */ }
+    ]
   },
   "secondary": { // in the ideal case this should cover all different cell types
     "components": [
@@ -310,7 +319,7 @@ Physical and configuration details for each electrochemical cell. Contains essen
             "name": "PFPMAm-co-TEGDMA (1%)",
             "type": "active_material",
             "amount": { // define amount/number/fraction/...
-              "value": 60,
+              "value": [60, 5], // show that values can be numbers, but also a tuple with two elements to be understood as VALUE ± ERROR to state measurement uncertainties
               "unit": "wt.-%"
             }
           },
@@ -620,7 +629,7 @@ Parameters and conditions for each electrochemical measurement. Contains essenti
     "id": 1, // this number should be unique and will also be used to get the sequence of applied techniques
     "group": {
       "name": "nicholson_analysis", // optional: group name
-      "group_id": 1,  // unique ID for a single group, but multiple techniques/auxilaries can belong to the same group
+      "id": 1,  // unique ID for a single group, but multiple techniques/auxilaries can belong to the same group
     },
     "auxiliary": false, // always false for techniques, only true for auxilary data
     "type": "cyclic_voltammetry",  // NOTE: different scan rates would be set up as different techniques bundled in a group
@@ -707,7 +716,7 @@ Information for parallel measurements and monitoring. Contains essential sensor 
     "id": 1, // this number should be unique and will also be used to get the sequence of applied auxilaries
     "group": {
       "name": "nicholson_analysis", // optional: group name
-      "group_id": 1,  // unique ID for a single group, but multiple techniques/auxilaries can belong to the same group
+      "id": 1,  // unique ID for a single group, but multiple techniques/auxilaries can belong to the same group
     },
     "auxiliary": true,
     "type": "temperature",

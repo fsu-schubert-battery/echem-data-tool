@@ -9,12 +9,13 @@ authors = [
 ]
 readme = "README.md"
 license = {text = "AGPL-3.0-or-later"}
-requires-python = ">=3.13"
+requires-python = ">=3.12,<4.0"
 dependencies = [
     "pandas (>=2.3.2,<3.0.0)",
     "xarray (>=2025.9.0,<2026.0.0)",
     "yadg (>=6.2.1,<7.0.0)",
     "pycodata (>=2.2.0,<3.0.0)",
+    "mermaid-py (>=0.8.0,<0.9.0)",
 ]
 
 [project.optional-dependencies]

@@ -319,7 +319,7 @@ Physical and configuration details for each electrochemical cell. Contains essen
             "name": "PFPMAm-co-TEGDMA (1%)",
             "type": "active_material",
             "amount": { // define amount/number/fraction/...
-              "value": 60,
+              "value": [60, 5], // show that values can be numbers, but also a tuple with two elements to be understood as VALUE ± ERROR to state measurement uncertainties
               "unit": "wt.-%"
             }
           },

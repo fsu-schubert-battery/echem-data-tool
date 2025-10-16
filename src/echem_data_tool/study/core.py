@@ -15,14 +15,20 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-NetCDF file handling module for electrochemical data.
+Core classes for the study module.
 
-This module provides object-oriented classes for handling the hierarchical
-netCDF file structure according to the file format specification defined
-in design-docs/file_format_specs.md.
+This module defines the main hierarchical classes that form the structure
+of an electrochemical study:
+- StudyObject: Top-level container for organizing electrochemical experiments
+- Cell: Cell groups with metadata and measurements
+- Technique: Electrochemical measurement techniques
+- Auxiliary: Auxiliary measurement data (temperature, pressure, etc.)
+- Group: Organizational units for related techniques/auxiliaries
 
-The module provides a complete abstraction of xarray/netCDF operations through
-a StudyObject class that mirrors the hierarchical structure:
+These classes provide the core functionality for building hierarchical study
+structures that can be saved to and loaded from netCDF files according to
+the file format specification in design-docs/file_format_specs.md. This 
+hierarchy is as follows:
 
 Study (Root)
 ├── Metadata (study-level)
@@ -45,61 +51,6 @@ Study (Root)
 │       └── [Techniques/Auxiliaries]
 └── [Future Extensions]
 
-Example:
-    ```python
-    from echem_data_tool.file import StudyObject
-    
-    # Create new study structure
-    study_obj = StudyObject()
-    
-    # Set study-level metadata
-    study_obj.metadata.id = "polymer_zn_battery_study"
-    study_obj.metadata.description = "Polymer electrolyte zinc battery characterization"
-    study_obj.metadata.add_contributor("Jane Doe", "jane@uni.edu", "University Lab")    # Add cell with metadata
-    cell = study_obj.add_cell("cell_001")
-    cell.metadata.id = "Cell-001"
-    cell.metadata.type = "Polymer Zn battery"
-    cell.metadata.cathode = "MnO2"
-    cell.metadata.anode = "Zn"
-    cell.metadata.electrolyte = "PEO-LiTFSI"
-    
-    # Create groups for organized measurements
-    characterization_group = cell.add_group("characterization")
-    cycling_group = cell.add_group("cycling")
-    
-    # Add techniques
-    cv_technique = cell.add_technique("technique_001_CV")
-    cv_technique.metadata.type = "Cyclic Voltammetry"
-    cv_technique.metadata.id = 1
-    cv_technique.data.add_variable("time", [0, 1, 2, 3], {"units": "s"})
-    cv_technique.data.add_variable("potential", [0.1, 0.2, 0.3, 0.4], {"units": "V"})
-    cv_technique.data.add_variable("current", [0.01, 0.02, 0.01, 0.0], {"units": "A"})
-    
-    charge_technique = cell.add_technique("technique_002_charge")
-    charge_technique.metadata.type = "Galvanostatic Charge"
-    charge_technique.metadata.id = 2
-    
-    # Add auxiliary measurement
-    temp_aux = cell.add_auxiliary("auxiliary_001_temperature")
-    temp_aux.metadata.type = "Temperature"
-    temp_aux.metadata.id = 1
-    temp_aux.data.add_variable("time", [0, 1, 2, 3], {"units": "s"})
-    temp_aux.data.add_variable("temperature", [25.1, 25.2, 25.3, 25.4], {"units": "°C"})
-    
-    # Organize techniques and auxiliaries in groups
-    characterization_group.add_technique(cv_technique)
-    characterization_group.add_auxiliary(temp_aux)
-    cycling_group.add_technique(charge_technique)
-    
-    # Print internal study architecture
-    study_obj.print_structure()
-    
-    # Save to netCDF
-    study_obj.save("polymer_zn_battery.nc")
-    
-    # Load from netCDF
-    loaded_study = StudyObject.load("polymer_zn_battery.nc")
-    ```
 """
 
 from __future__ import annotations

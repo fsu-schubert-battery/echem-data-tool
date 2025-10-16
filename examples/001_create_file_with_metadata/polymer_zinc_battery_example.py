@@ -22,7 +22,7 @@ import json
 from datetime import datetime, timedelta
 sys.path.append('src')
 
-from echem_data_tool.file import (
+from echem_data_tool.study import (
     StudyObject
 )
 
@@ -889,9 +889,9 @@ def demonstrate_metadata_access(study_object):
     
     # Find and modify device info
     thermocouple = temp_aux.metadata.find_device("TC_Cell_Surface")
-    if thermocouple and thermocouple.software:
-        thermocouple.software.version = "2.2"  # Updated software
-        print(f"   ✅ Updated thermocouple software to v{thermocouple.software.version}")
+    if thermocouple and thermocouple.software_name:
+        thermocouple.software_version = "2.2"  # Updated software
+        print(f"   ✅ Updated thermocouple software to v{thermocouple.software_version}")
     
     # =================================================================
     # Second cell operations

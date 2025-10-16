@@ -15,35 +15,21 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Data handling classes for electrochemical data.
+Data container classes for raw measurement data.
 
-This module provides classes for managing data variables and data groups
-that correspond to the 'data' subgroups within technique and auxiliary groups
-in the netCDF file structure.
+This module provides lightweight wrappers for managing data variables
+within techniques and auxiliary measurements:
 
-The module provides a clean abstraction for:
-- DataVariable: Individual data arrays with metadata
-- DataGroup: Collections of data variables (netCDF groups)
+- DataVariable: Individual data arrays with metadata (attributes, dimensions)
+- DataGroup: Collections of related data variables
 
-Example:
-    ```python
-    from echem_data_tool.file.data import DataVariable, DataGroup
-    
-    # Create data group for a technique
-    data_group = DataGroup()
-    
-    # Add variables with metadata
-    data_group.add_variable("time", [0, 1, 2, 3], {"units": "s"})
-    data_group.add_variable("potential", [0.1, 0.2, 0.3, 0.4], {"units": "V"})
-    data_group.add_variable("current", [0.01, 0.02, 0.01, 0.0], {"units": "A"})
-    
-    # Access variables
-    time_data = data_group.get_variable("time")
-    print(f"Time units: {time_data.attributes['units']}")
-    
-    # Convert to xarray for analysis
-    dataset = data_group.to_xarray_dataset()
-    ```
+These classes abstract xarray/netCDF operations for data storage and provide
+a clean interface for adding, accessing, and managing measurement data
+(time series, voltages, currents, temperatures, etc.) within the hierarchical
+study structure.
+
+Data groups correspond to the 'data' subgroups within technique_XXX and
+auxiliary_XXX groups in the netCDF file format.
 """
 
 from __future__ import annotations

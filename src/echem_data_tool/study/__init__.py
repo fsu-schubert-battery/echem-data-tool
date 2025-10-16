@@ -15,18 +15,22 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-File handling module for electrochemical netCDF data.
+Study module for in-memory representation of electrochemical data.
 
 This module provides object-oriented classes for working with hierarchical
-netCDF files containing electrochemical data and metadata.
+study structures containing electrochemical data and metadata that can be stored
+in and loaded from netCDF files. The structure of the netCDF files and, thus, the
+study objects follows the file format specification defined in `design-docs/file_format_specs.md`.
 
 Main components:
-- StudyObject: Complete study abstraction with data and metadata
-- Metadata classes: StudyMetadata, CellMetadata, TechniqueMetadata, AuxiliaryMetadata
+- StudyObject: Top-level container for electrochemical studies
+- Cell, Technique, Auxiliary: Hierarchical structure of experiments grouped by cells and techniques
+- Metadata classes: Comprehensive metadata support at all hierarchy levels
+- DataGroup, DataVariable: Raw measurement data containers (work-in-progress)
 
 Example:
     ```python
-    from echem_data_tool.file import StudyObject
+    from echem_data_tool.study import StudyObject
     
     # Create new study
     study_obj = StudyObject()
@@ -54,7 +58,7 @@ Example:
     ```
 """
 
-from .file import (
+from .core import (
     StudyObject,
     Cell,
     Technique,
@@ -75,12 +79,11 @@ from .metadata import (
     GroupMetadata,
     Contributor,
     Funding,
-    SoftwareObject,
     Device,
-    Parameter,
+    Setting,
     AmountObject,
     Material,
-    CellComponent,
+    Component,
     ChemistryObject,
     AssemblyObject,
     AdditionalNote,
@@ -107,12 +110,11 @@ __all__ = [
     # Helper classes
     "Contributor",
     "Funding",
-    "SoftwareObject",
     "Device", 
-    "Parameter",
+    "Setting",
     "AmountObject",
     "Material",
-    "CellComponent",
+    "Component",
     "ChemistryObject",
     "AssemblyObject", 
     "AdditionalNote",

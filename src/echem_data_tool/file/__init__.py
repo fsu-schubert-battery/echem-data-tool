@@ -21,22 +21,22 @@ This module provides object-oriented classes for working with hierarchical
 netCDF files containing electrochemical data and metadata.
 
 Main components:
-- FileObject: Complete file abstraction with data and metadata
+- StudyObject: Complete study abstraction with data and metadata
 - Metadata classes: StudyMetadata, CellMetadata, TechniqueMetadata, AuxiliaryMetadata
 
 Example:
     ```python
-    from echem_data_tool.file import FileObject
+    from echem_data_tool.file import StudyObject
     
-    # Create new file
-    file_obj = FileObject()
+    # Create new study
+    study_obj = StudyObject()
     
     # Set study metadata
-    file_obj.metadata.id = "test_study"
-    file_obj.metadata.description = "Example electrochemical study"
+    study_obj.metadata.id = "test_study"
+    study_obj.metadata.description = "Example electrochemical study"
     
     # Add cell with metadata
-    cell = file_obj.add_cell("cell_001")
+    cell = study_obj.add_cell("cell_001")
     cell.metadata.id = "Cell-001"
     cell.metadata.type = "coin"
     cell.metadata.cathode = "LFP"
@@ -50,12 +50,12 @@ Example:
     cv_technique.data.add_variable("potential", [0.1, 0.2, 0.3], {"units": "V"})
     
     # Save to file
-    file_obj.save("experiment.nc")
+    study_obj.save("experiment.nc")
     ```
 """
 
 from .file import (
-    FileObject,
+    StudyObject,
     Cell,
     Technique,
     Auxiliary,
@@ -88,8 +88,8 @@ from .metadata import (
 )
 
 __all__ = [
-    # File handling classes
-    "FileObject",
+    # Study structure classes
+    "StudyObject",
     "Cell",
     "Technique", 
     "Auxiliary",

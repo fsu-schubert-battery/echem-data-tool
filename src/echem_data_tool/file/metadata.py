@@ -35,16 +35,16 @@ organization with primary, secondary, and tertiary metadata levels.
 
 Minimal example:
     ```python
-    from echem_data_tool.file import FileObject
+    from echem_data_tool.file import StudyObject
     
-    # Create file object (includes StudyMetadata automatically)
-    file_obj = FileObject()
-    file_obj.metadata.id = "20250928_test_experiment"
-    file_obj.metadata.description = "Example electrochemical study"
-    file_obj.metadata.add_contributor("Jane Doe", "jane@example.edu", "Example Uni")
+    # Create study object (includes StudyMetadata automatically)
+    study_obj = StudyObject()
+    study_obj.metadata.id = "20250928_test_experiment"
+    study_obj.metadata.description = "Example electrochemical study"
+    study_obj.metadata.add_contributor("Jane Doe", "jane@example.edu", "Example Uni")
     
     # Add cell with metadata
-    cell = file_obj.add_cell("cell_001")
+    cell = study_obj.add_cell("cell_001")
     cell.metadata.id = "Cell-001"
     cell.metadata.type = "Three-electrode cell"
     cell.metadata.cathode = "Ferrocene"
@@ -601,7 +601,7 @@ class StudyMetadata(BaseMetadata):
                 "format_version": self.format_version,
                 "timestamp": self.timestamp.isoformat()
             },
-            "study_metadata": {
+            "metadata": {
                 "id": self.id,
                 "description": self.description,
                 "contributors": [contrib.to_dict() for contrib in self.contributors],
@@ -621,28 +621,28 @@ class StudyMetadata(BaseMetadata):
             "timestamp": self.timestamp.isoformat(),
             "study_id": self.id,
             "study_description": self.description,
-            "study_metadata_json": json.dumps(self.to_dict())
+            "metadata_json": json.dumps(self.to_dict())
         }
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> StudyMetadata:
         """Create StudyMetadata from dictionary representation."""
         file_metadata = data.get("file_metadata", {})
-        study_metadata = data.get("study_metadata", {})
+        metadata = data.get("metadata", {})
         
         study = cls(
-            id=study_metadata.get("id", ""),
-            description=study_metadata.get("description", ""),
+            id=metadata.get("id", ""),
+            description=metadata.get("description", ""),
             format_version=file_metadata.get("format_version", "1.0.0"),
             timestamp=datetime.fromisoformat(file_metadata["timestamp"]) if "timestamp" in file_metadata else datetime.now()
         )
         
         # Reconstruct contributors
-        for contrib_data in study_metadata.get("contributors", []):
+        for contrib_data in metadata.get("contributors", []):
             study.contributors.append(Contributor.from_dict(contrib_data))
         
         # Reconstruct funding
-        for fund_data in study_metadata.get("funding", []):
+        for fund_data in metadata.get("funding", []):
             study.funding.append(Funding.from_dict(fund_data))
         
         return study
@@ -657,16 +657,16 @@ class StudyMetadata(BaseMetadata):
     def from_netcdf_attrs(cls, attrs: Dict[str, Any]) -> StudyMetadata:
         """Create from netCDF attributes."""
         # Try to load from JSON first, fallback to individual attributes
-        if "study_metadata_json" in attrs:
-            data = json.loads(attrs["study_metadata_json"])
+        if "metadata_json" in attrs:
+            data = json.loads(attrs["metadata_json"])
             study = cls(
-                id=data["study_metadata"]["id"],
-                description=data["study_metadata"]["description"],
+                id=data["metadata"]["id"],
+                description=data["metadata"]["description"],
                 format_version=data["file_metadata"]["format_version"],
                 timestamp=datetime.fromisoformat(data["file_metadata"]["timestamp"])
             )
             # Reconstruct contributors and funding
-            for contrib_data in data["study_metadata"].get("contributors", []):
+            for contrib_data in data["metadata"].get("contributors", []):
                 contributor = Contributor(
                     name=contrib_data["name"],
                     email=contrib_data["email"],
@@ -675,7 +675,7 @@ class StudyMetadata(BaseMetadata):
                 )
                 study.contributors.append(contributor)
             
-            for fund_data in data["study_metadata"].get("funding", []):
+            for fund_data in data["metadata"].get("funding", []):
                 funding = Funding(
                     agency=fund_data["agency"],
                     country=fund_data["country"],

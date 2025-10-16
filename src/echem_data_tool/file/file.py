@@ -22,7 +22,7 @@ netCDF file structure according to the file format specification defined
 in design-docs/file_format_specs.md.
 
 The module provides a complete abstraction of xarray/netCDF operations through
-a FileObject class that mirrors the hierarchical structure:
+a StudyObject class that mirrors the hierarchical structure:
 
 Study (Root)
 ├── Metadata (study-level)
@@ -47,18 +47,16 @@ Study (Root)
 
 Example:
     ```python
-    from echem_data_tool.file import FileObject
+    from echem_data_tool.file import StudyObject
     
-    # Create new file structure
-    file_obj = FileObject()
+    # Create new study structure
+    study_obj = StudyObject()
     
-    # Set study metadata
-    file_obj.metadata.id = "polymer_zn_battery_study"
-    file_obj.metadata.description = "Polymer electrolyte zinc battery characterization"
-    file_obj.metadata.add_contributor("Jane Doe", "jane@uni.edu", "University Lab")
-    
-    # Add cell with metadata
-    cell = file_obj.add_cell("cell_001")
+    # Set study-level metadata
+    study_obj.metadata.id = "polymer_zn_battery_study"
+    study_obj.metadata.description = "Polymer electrolyte zinc battery characterization"
+    study_obj.metadata.add_contributor("Jane Doe", "jane@uni.edu", "University Lab")    # Add cell with metadata
+    cell = study_obj.add_cell("cell_001")
     cell.metadata.id = "Cell-001"
     cell.metadata.type = "Polymer Zn battery"
     cell.metadata.cathode = "MnO2"
@@ -93,14 +91,14 @@ Example:
     characterization_group.add_auxiliary(temp_aux)
     cycling_group.add_technique(charge_technique)
     
-    # Print internal file architecture
-    file_obj.print_structure()
+    # Print internal study architecture
+    study_obj.print_structure()
     
     # Save to netCDF
-    file_obj.save("polymer_zn_battery.nc")
+    study_obj.save("polymer_zn_battery.nc")
     
     # Load from netCDF
-    loaded_file = FileObject.load("polymer_zn_battery.nc")
+    loaded_study = StudyObject.load("polymer_zn_battery.nc")
     ```
 """
 
@@ -546,14 +544,14 @@ class Cell:
 
 
 # =============================================================================
-# MAIN FILE OBJECT CLASS
+# MAIN STUDY OBJECT CLASS
 # =============================================================================
 
-class FileObject:
-    """Object-oriented representation of the hierarchical netCDF file structure.
+class StudyObject:
+    """Object-oriented representation of an electrochemical study with hierarchical netCDF storage.
     
     This class provides complete abstraction of xarray/netCDF operations and
-    mirrors the file format specification structure with:
+    mirrors the study structure with:
 
     - Study-level metadata
     - Cells with metadata
@@ -561,23 +559,18 @@ class FileObject:
     - Auxiliary data with data
     
     The class handles all xarray complexity internally and provides a clean,
-    intuitive API for working with electrochemical data files.
+    intuitive API for working with electrochemical study data.
     """
     
     def __init__(self):
-        """Initialize empty file object."""
+        """Initialize empty study object."""
 
-        # study-level metadata - automatically created
-        self.study_metadata: StudyMetadata = StudyMetadata()
+        # study-level metadata
+        self.metadata: StudyMetadata = StudyMetadata()
 
         # study-level groups
         self.cells: Dict[str, Cell] = {}
         # self.future_extensions: Dict[str, FutureExtensionGroup] = {} # Placeholder for future extensions
-    
-    @property
-    def metadata(self) -> StudyMetadata:
-        """Access to study-level metadata."""
-        return self.study_metadata
     
     # -------------------------------------------------------------------------
     # CELL-LEVEL OPERATIONS
@@ -635,7 +628,7 @@ class FileObject:
     # -------------------------------------------------------------------------
     
     def to_xarray_dataset(self) -> xr.Dataset:
-        """Convert file object to xarray Dataset.
+        """Convert study object to xarray Dataset.
         
         This flattens the hierarchical structure into a single dataset
         with appropriate variable naming and metadata organization.
@@ -645,7 +638,7 @@ class FileObject:
         attrs = {}
         
         # Add study metadata as global attributes
-        attrs.update(self.study_metadata.to_netcdf_attrs())
+        attrs.update(self.metadata.to_netcdf_attrs())
         
         # Process each cell
         for cell_name, cell in self.cells.items():
@@ -683,7 +676,7 @@ class FileObject:
         return xr.Dataset(data_vars=data_vars, attrs=attrs)
     
     def save(self, filename: Union[str, Path], engine: str = "h5netcdf") -> None:
-        """Save file object to netCDF file.
+        """Save study object to netCDF file.
         
         Args:
             filename: Output filename
@@ -693,39 +686,39 @@ class FileObject:
         ds.to_netcdf(filename, engine=engine)
     
     @classmethod
-    def load(cls, filename: Union[str, Path]) -> FileObject:
-        """Load file object from netCDF file.
+    def load(cls, filename: Union[str, Path]) -> StudyObject:
+        """Load study object from netCDF file.
         
         Args:
             filename: Input filename
             
         Returns:
-            FileObject instance loaded from file
+            StudyObject instance loaded from file
         """
         ds = xr.open_dataset(filename)
         
-        file_obj = cls()
+        study_obj = cls()
         
         # Extract study metadata from global attributes and update the automatically created instance
         try:
-            if "study_metadata_json" in ds.attrs:
-                study_data = json.loads(ds.attrs["study_metadata_json"])
+            if "metadata_json" in ds.attrs:
+                study_data = json.loads(ds.attrs["metadata_json"])
                 # Update the automatically created StudyMetadata instance
-                file_obj.study_metadata.id = study_data["study_metadata"]["id"]
-                file_obj.study_metadata.description = study_data["study_metadata"]["description"]
-                file_obj.study_metadata.format_version = study_data["file_metadata"]["format_version"]
-                file_obj.study_metadata.timestamp = datetime.fromisoformat(study_data["file_metadata"]["timestamp"])
+                study_obj.metadata.id = study_data["metadata"]["id"]
+                study_obj.metadata.description = study_data["metadata"]["description"]
+                study_obj.metadata.format_version = study_data["file_metadata"]["format_version"]
+                study_obj.metadata.timestamp = datetime.fromisoformat(study_data["file_metadata"]["timestamp"])
             else:
                 # Fallback to individual attributes - update the existing instance
                 loaded_metadata = StudyMetadata.from_netcdf_attrs(ds.attrs)
-                file_obj.study_metadata.id = loaded_metadata.id
-                file_obj.study_metadata.description = loaded_metadata.description
-                file_obj.study_metadata.format_version = loaded_metadata.format_version
-                file_obj.study_metadata.timestamp = loaded_metadata.timestamp
+                study_obj.metadata.id = loaded_metadata.id
+                study_obj.metadata.description = loaded_metadata.description
+                study_obj.metadata.format_version = loaded_metadata.format_version
+                study_obj.metadata.timestamp = loaded_metadata.timestamp
         except (KeyError, json.JSONDecodeError, ValueError):
             # If metadata extraction fails, set minimal values on existing instance
-            file_obj.study_metadata.id = "unknown"
-            file_obj.study_metadata.description = ""
+            study_obj.metadata.id = "unknown"
+            study_obj.metadata.description = ""
         
         # Extract cell, technique, and auxiliary data
         # This is complex and would require parsing the flattened attribute names
@@ -739,17 +732,17 @@ class FileObject:
         # And reconstructing data variables with prefixes like:
         # - cell_001_technique_001_CV_time, cell_001_technique_001_CV_potential, etc.
         
-        return file_obj
+        return study_obj
     
     # -------------------------------------------------------------------------
     # UTILITY METHODS
     # -------------------------------------------------------------------------
     
     def validate(self) -> List[str]:
-        """Validate file structure and return list of issues."""
+        """Validate study structure and return list of issues."""
         issues = []
         
-        if not self.study_metadata.id:
+        if not self.metadata.id:
             issues.append("Study metadata has no ID set")
         
         if not self.cells:
@@ -775,22 +768,22 @@ class FileObject:
         return issues
     
     def print_structure(self, show_metadata: bool = True, show_data: bool = False) -> None:
-        """Print a visual tree structure of the file object to terminal.
+        """Print a visual tree structure of the study object to terminal.
         
         Args:
             show_metadata: Whether to show metadata details
             show_data: Whether to show data variable details
         """
-        print("📁 FileObject Structure")
+        print("📁 StudyObject Structure")
         print("=" * 50)
         
         # Study level
-        print(f"🔬 Study: {self.study_metadata.id}")
+        print(f"🔬 Study: {self.metadata.id}")
         if show_metadata:
-            print(f"   📝 Description: {self.study_metadata.description[:60]}{'...' if len(self.study_metadata.description) > 60 else ''}")
-            print(f"   📅 Created: {self.study_metadata.timestamp.strftime('%Y-%m-%d %H:%M')}")
-            print(f"   👥 Contributors: {len(self.study_metadata.contributors)}")
-            print(f"   💰 Funding: {len(self.study_metadata.funding)} sources")
+            print(f"   📝 Description: {self.metadata.description[:60]}{'...' if len(self.metadata.description) > 60 else ''}")
+            print(f"   📅 Created: {self.metadata.timestamp.strftime('%Y-%m-%d %H:%M')}")
+            print(f"   👥 Contributors: {len(self.metadata.contributors)}")
+            print(f"   💰 Funding: {len(self.metadata.funding)} sources")
         
         # Study subgroups level
         study_subgroups = []
@@ -1053,11 +1046,11 @@ class FileObject:
         
         # Define Study entity
         lines.append('    "Study" {')
-        lines.append(f'        string id "{self.study_metadata.id}"')
+        lines.append(f'        string id "{self.metadata.id}"')
         if show_metadata:
-            lines.append(f'        int contributors "{len(self.study_metadata.contributors)}"')
-            lines.append(f'        int funding "{len(self.study_metadata.funding)}"')
-            lines.append(f'        datetime timestamp "{self.study_metadata.timestamp.strftime("%Y-%m-%d %H:%M")}"')
+            lines.append(f'        int contributors "{len(self.metadata.contributors)}"')
+            lines.append(f'        int funding "{len(self.metadata.funding)}"')
+            lines.append(f'        datetime timestamp "{self.metadata.timestamp.strftime("%Y-%m-%d %H:%M")}"')
         lines.append("    }")
         lines.append("")
         

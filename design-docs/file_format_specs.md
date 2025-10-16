@@ -207,7 +207,7 @@ Global information about the entire study stored as NetCDF attributes. Contains 
     "format_version": "1.0.0",
     "timestamp": "2025-07-15T08:00:00Z" // creation time of this netCDF file
   },
-  "study_metadata": {
+  "metadata": {
     "id": "20250715_AB-EC35-2_1_PFPMAm-co-TEGDMA1,0_Zn_2MZnClO4_RC_data",
     "description": "Investigation of a ferrocene-based polymer",  // rename to objective? have a separate field?
     "contributors": [

@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 sys.path.append('src')
 
 from echem_data_tool.file import (
-    FileObject
+    StudyObject
 )
 
 def create_polymer_zinc_study():
@@ -33,15 +33,15 @@ def create_polymer_zinc_study():
     print("=" * 60)
 
     # =================================================================
-    # CREATE FILE AND STUDY LAYOUT
+    # CREATE STUDY OBJECT AND LAYOUT
     # =================================================================
     
-    # create a new file object for this study
-    my_first_study_file = FileObject()
+    # create a new study object for this study
+    my_first_study = StudyObject()
 
     # ADD CELL 1
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    cell = my_first_study_file.add_cell("cell_001")
+    cell = my_first_study.add_cell("cell_001")
     cv_technique = cell.add_technique("technique_001_CV")
     cv_technique_2 = cell.add_technique("technique_002_CV")
     gcd_technique = cell.add_technique("technique_003_GCD")
@@ -53,7 +53,7 @@ def create_polymer_zinc_study():
     
     # ADD CELL 2
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    cell_2 = my_first_study_file.add_cell("cell_002")
+    cell_2 = my_first_study.add_cell("cell_002")
     eis_technique = cell_2.add_technique("technique_001_EIS")
     cv_slow_technique = cell_2.add_technique("technique_002_CV")
     pressure_aux = cell_2.add_auxiliary("auxiliary_001_pressure")
@@ -66,18 +66,18 @@ def create_polymer_zinc_study():
     # 1. STUDY METADATA
     # =================================================================
     
-    # Set study metadata directly on the file object
-    my_first_study_file.metadata.id = "PZB_2025_001_ThinFilm_Characterization"
-    my_first_study_file.metadata.description = (
+    # Set study metadata directly on the study object
+    my_first_study.metadata.id = "PZB_2025_001_ThinFilm_Characterization"
+    my_first_study.metadata.description = (
         "Electrochemical characterization of polymer/zinc thin-film batteries "
         "fabricated via solution processing in inert atmosphere. Investigation "
         "of cycling stability and rate capability using cyclic voltammetry "
         "and galvanostatic charge-discharge protocols."
     )
-    my_first_study_file.metadata.format_version = "1.0.0"
+    my_first_study.metadata.format_version = "1.0.0"
     
     # Add research team
-    my_first_study_file.metadata.add_contributor(
+    my_first_study.metadata.add_contributor(
         name="Dr. Elena Müller",
         email="elena.mueller@uni-jena.de", 
         affiliation="Friedrich-Schiller-Universität Jena, Institute of Physical Chemistry",
@@ -87,7 +87,7 @@ def create_polymer_zinc_study():
         ]
     )
     
-    my_first_study_file.metadata.add_contributor(
+    my_first_study.metadata.add_contributor(
         name="Marcus Weber",
         email="marcus.weber@uni-jena.de",
         affiliation="Friedrich-Schiller-Universität Jena, Graduate School",
@@ -97,7 +97,7 @@ def create_polymer_zinc_study():
         ]
     )
     
-    my_first_study_file.metadata.add_contributor(
+    my_first_study.metadata.add_contributor(
         name="Dr. Sarah Chen",
         email="sarah.chen@uni-jena.de",
         affiliation="Friedrich-Schiller-Universität Jena, CEEC Jena",
@@ -108,22 +108,22 @@ def create_polymer_zinc_study():
     )
     
     # Add funding sources
-    my_first_study_file.metadata.add_funding(
+    my_first_study.metadata.add_funding(
         agency="Deutsche Forschungsgemeinschaft (DFG)",
         country="Germany", 
         grant_number="MU 1234/5-2"
     )
     
-    my_first_study_file.metadata.add_funding(
+    my_first_study.metadata.add_funding(
         agency="Bundesministerium für Bildung und Forschung (BMBF)",
         country="Germany",
         grant_number="03EK3045A - FestBatt"
     )
     
     # Output summary
-    print(f"✅ Study '{my_first_study_file.metadata.id}' created")
-    print(f"   - {len(my_first_study_file.metadata.contributors)} contributors")
-    print(f"   - {len(my_first_study_file.metadata.funding)} funding sources")    
+    print(f"✅ Study '{my_first_study.metadata.id}' created")
+    print(f"   - {len(my_first_study.metadata.contributors)} contributors")
+    print(f"   - {len(my_first_study.metadata.funding)} funding sources")    
     
     # =================================================================
     # 2. CELL METADATA - Thin-film battery construction
@@ -470,8 +470,8 @@ def create_polymer_zinc_study():
     print(f"   - Covers techniques: {temperature_aux.metadata.parent_techniques}")
     print(f"   - {len(temperature_aux.metadata.devices)} devices")
     
-    print(f"\n✅ Cell was added to file object")
-    print(f"   - File object now contains {len(my_first_study_file.cells)} cell(s)")
+    print(f"\n✅ Cell was added to study object")
+    print(f"   - Study object now contains {len(my_first_study.cells)} cell(s)")
     
     # =================================================================
     # 7. SECOND CELL - Different construction and testing
@@ -750,24 +750,24 @@ def create_polymer_zinc_study():
     print(f"   - Duration: {pressure_start.strftime('%H:%M')} - {pressure_end.strftime('%H:%M')}")
     print(f"   - Covers techniques: {pressure_aux.metadata.parent_techniques}")
     
-    print(f"\n✅ Second cell added to file object")
-    print(f"   - File object now contains {len(my_first_study_file.cells)} cell(s)")
-    print(f"   - Total techniques: {sum(len(cell.techniques) for cell in my_first_study_file.cells.values())}")
-    print(f"   - Total auxiliaries: {sum(len(cell.auxiliary) for cell in my_first_study_file.cells.values())}")
+    print(f"\n✅ Second cell added to study object")
+    print(f"   - Study object now contains {len(my_first_study.cells)} cell(s)")
+    print(f"   - Total techniques: {sum(len(cell.techniques) for cell in my_first_study.cells.values())}")
+    print(f"   - Total auxiliaries: {sum(len(cell.auxiliary) for cell in my_first_study.cells.values())}")
     
-    return my_first_study_file
+    return my_first_study
 
-def demonstrate_metadata_access(file_object):
+def demonstrate_metadata_access(study_object):
     """Demonstrate find/modify functionality of the metadata system."""
     
     print("\n" + "="*60)
     print("🔍 DEMONSTRATING METADATA ACCESS & MODIFICATION")
     print("="*60)
     
-    # Extract objects from file_object
-    study = file_object.metadata
-    cell = file_object.get_cell("cell_001")
-    cell_2 = file_object.get_cell("cell_002")
+    # Extract objects from study_object
+    study = study_object.metadata
+    cell = study_object.get_cell("cell_001")
+    cell_2 = study_object.get_cell("cell_002")
     cv_tech = cell.get_technique("technique_001_CV")
     cv_tech_2 = cell.get_technique("technique_002_CV")
     gcd_tech = cell.get_technique("technique_003_GCD")
@@ -924,17 +924,17 @@ def demonstrate_metadata_access(file_object):
         pressure_sampling.value = 0.05  # Even slower sampling
         print(f"   ✅ Pressure sampling reduced to {pressure_sampling.value} {pressure_sampling.unit}")
 
-def demonstrate_serialization(file_object):
+def demonstrate_serialization(study_object):
     """Demonstrate serialization capabilities."""
     
     print("\n" + "="*60) 
     print("💾 DEMONSTRATING SERIALIZATION & DATA EXPORT")
     print("="*60)
     
-    # Extract objects from file_object
-    study = file_object.metadata
-    cell = file_object.get_cell("cell_001")
-    cell_2 = file_object.get_cell("cell_002")
+    # Extract objects from study_object
+    study = study_object.metadata
+    cell = study_object.get_cell("cell_001")
+    cell_2 = study_object.get_cell("cell_002")
     cv_tech = cell.get_technique("technique_001_CV")
     cv_tech_2 = cell.get_technique("technique_002_CV")
     gcd_tech = cell.get_technique("technique_003_GCD")
@@ -949,8 +949,8 @@ def demonstrate_serialization(file_object):
     print("\n📊 Study metadata serialization:")
     study_dict = study.to_dict()
     print(f"   ✅ Dictionary: {len(study_dict)} top-level keys")
-    print(f"   ✅ Contributors: {len(study_dict['study_metadata']['contributors'])}")
-    print(f"   ✅ Funding sources: {len(study_dict['study_metadata']['funding'])}")
+    print(f"   ✅ Contributors: {len(study_dict['metadata']['contributors'])}")
+    print(f"   ✅ Funding sources: {len(study_dict['metadata']['funding'])}")
     
     study_attrs = study.to_netcdf_attrs()
     print(f"   ✅ NetCDF attributes: {len(study_attrs)} attributes")
@@ -1038,7 +1038,7 @@ def demonstrate_serialization(file_object):
     study_json = json.loads(study.to_json())
     print(f"   {json.dumps(study_json['file_metadata'], indent=6)}")
 
-def demonstrate_structure_visualization(file_object):
+def demonstrate_structure_visualization(study_object):
     """Demonstrate the new structure visualization capabilities."""
     
     print("\n" + "="*60)
@@ -1048,12 +1048,12 @@ def demonstrate_structure_visualization(file_object):
     # Simplified version
     print("\n📟 Simplified Structure Visualization:")
     print("-" * 40)
-    file_object.print_structure(show_metadata=False, show_data=False)
+    study_object.print_structure(show_metadata=False, show_data=False)
     
     # Detailed version
     print("\n📟 Detailed Structure Visualization:")
     print("-" * 40)
-    file_object.print_structure(show_metadata=True, show_data=False)
+    study_object.print_structure(show_metadata=True, show_data=False)
     
     # Try graphical visualization  
     print("\n🎨 Graphical Structure Visualization:")
@@ -1062,13 +1062,13 @@ def demonstrate_structure_visualization(file_object):
     # Graphical visualization
     print("📊 Creating entity relationship diagrams...")
     try:
-        file_object.plot_structure(
+        study_object.plot_structure(
             filename="polymer_structure_detailed", 
             format="svg",
             show_metadata=True
         )
 
-        file_object.plot_structure(
+        study_object.plot_structure(
             filename="polymer_structure_simple",
             format="svg", 
             show_metadata=False
@@ -1089,16 +1089,16 @@ def main():
     print("="*80)
     
     # Create complete study metadata
-    my_first_study_file = create_polymer_zinc_study()
+    my_first_study = create_polymer_zinc_study()
     
     # Demonstrate access and modification capabilities
-    demonstrate_metadata_access(my_first_study_file)
+    demonstrate_metadata_access(my_first_study)
     
     # Demonstrate serialization and export
-    demonstrate_serialization(my_first_study_file)
+    demonstrate_serialization(my_first_study)
     
     # Demonstrate structure visualization
-    demonstrate_structure_visualization(my_first_study_file)
+    demonstrate_structure_visualization(my_first_study)
     
 if __name__ == "__main__":
     main()

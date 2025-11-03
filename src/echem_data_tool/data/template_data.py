@@ -1,8 +1,13 @@
 """
 Template for creating custom electrochemical data classes.
 
-This template shows how to create your own data class by inheriting from BaseData.
-Replace 'YourTechnique' with your specific measurement technique name.
+This template shows examples on how to create your own data class by inheriting 
+from BaseData. Replace 'YourTechnique' with your specific measurement technique name.
+Make sure to implement all abstract methods and add any technique-specific attributes.
+
+It is recommended to copy this file and rename it according to your technique,
+e.g., `cyclic_voltammetry_data.py`, `chronoamperometry_data.py`, etc.
+Therefore, each technique will have its own dedicated data class file.
 """
 
 from dataclasses import dataclass
@@ -26,10 +31,12 @@ class YourTechniqueData(BaseData):
     - ChronoamperometryData
     - CyclingData
     - ElectrochemicalImpedanceSpectroscopyData
+    - ...
     """
     
     # Define your data fields here
     # Use numpy arrays for numerical data
+    # and state expected units in comments
     time: np.ndarray = None
     potential: np.ndarray = None  # V vs. reference
     current: np.ndarray = None    # A
@@ -54,52 +61,7 @@ class YourTechniqueData(BaseData):
         Returns:
             bool: True if data is valid, False otherwise
         """
-        try:
-            # Example validations - customize for your data
-            if self.time is None or self.potential is None or self.current is None:
-                return False
-                
-            # Check that all arrays have the same length
-            if not (len(self.time) == len(self.potential) == len(self.current)):
-                return False
-                
-            # Check for NaN or infinite values
-            for array in [self.time, self.potential, self.current]:
-                if np.any(np.isnan(array)) or np.any(np.isinf(array)):
-                    return False
-            
-            # Add your specific validation checks here
-            # Examples:
-            # - Time should be monotonically increasing
-            # - Potential should be within reasonable range
-            # - Current values should be reasonable
-            
-            return True
-            
-        except Exception:
-            return False
-    
-    def to_dataframe(self) -> pd.DataFrame:
-        """
-        Convert the data to a pandas DataFrame.
-        
-        Customize the column names and structure for your data.
-        
-        Returns:
-            pd.DataFrame: Data as DataFrame with appropriate column names
-        """
-        data_dict = {
-            'time_s': self.time,
-            'potential_V': self.potential,
-            'current_A': self.current,
-        }
-        
-        # Add your additional fields here
-        # Example:
-        # if self.temperature is not None:
-        #     data_dict['temperature_K'] = self.temperature
-        
-        return pd.DataFrame(data_dict)
+        pass
     
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -110,100 +72,93 @@ class YourTechniqueData(BaseData):
         Returns:
             Dict[str, Any]: Data as dictionary
         """
-        result = {
-            'time': self.time.tolist() if self.time is not None else None,
-            'potential': self.potential.tolist() if self.potential is not None else None,
-            'current': self.current.tolist() if self.current is not None else None,
-            'file_path': self.file_path,
-        }
-        
-        # Add your additional fields here
-        # Example:
-        # if self.temperature is not None:
-        #     result['temperature'] = self.temperature.tolist()
-        
-        return result
-    
-    # Add custom methods specific to your technique
-    def get_data_summary(self) -> Dict[str, Any]:
+        pass
+
+    def to_dataframe(self) -> pd.DataFrame:
         """
-        Example custom method: Get a summary of the measurement data.
+        Convert the data to a pandas DataFrame.
+        
+        Customize the column names and structure for your data.
         
         Returns:
-            Dict[str, Any]: Summary statistics
+            pd.DataFrame: Data as DataFrame with appropriate column names
         """
-        if not self.validate():
-            return {"error": "Invalid data"}
-        
-        return {
-            'duration_s': self.time[-1] - self.time[0] if len(self.time) > 1 else 0,
-            'potential_range_V': [np.min(self.potential), np.max(self.potential)],
-            'current_range_A': [np.min(self.current), np.max(self.current)],
-            'data_points': len(self.time),
-        }
+        pass
 
 
 # Example of a more specific implementation
-@dataclass  
-class CyclicVoltammetryData(BaseData):
-    """
-    Data class for Cyclic Voltammetry measurements.
+# @dataclass  
+# class CyclicVoltammetryData(BaseData):
+#     """
+#     Data class for Cyclic Voltammetry measurement data.
     
-    Contains the essential data for CV experiments including
-    time, potential, and current traces.
-    """
+#     Contains the essential data for CV experiments including
+#     time, potential, and current traces.
+#     """
     
-    time: np.ndarray = None         # s
-    potential: np.ndarray = None    # V vs. reference
-    current: np.ndarray = None      # A
-    cycle_number: np.ndarray = None # dimensionless
+#     time: np.ndarray = None         # s
+#     potential: np.ndarray = None    # V vs. reference
+#     current: np.ndarray = None      # A
+#     cycle_number: np.ndarray = None # dimensionless
     
-    def validate(self) -> bool:
-        """Validate CV-specific data."""
-        try:
-            if any(x is None for x in [self.time, self.potential, self.current]):
-                return False
-                
-            if not (len(self.time) == len(self.potential) == len(self.current)):
-                return False
-                
-            # CV-specific validations
-            if self.scan_rate is not None and self.scan_rate <= 0:
-                return False
-                
-            return True
-        except Exception:
-            return False
-    
-    def to_dataframe(self) -> pd.DataFrame:
-        """Convert CV data to DataFrame."""
-        data = {
-            'time_s': self.time,
-            'potential_V': self.potential, 
-            'current_A': self.current,
-        }
+#     def validate(self) -> bool:
+#         """
+#         Validate CV-specific data.
         
-        if self.cycle_number is not None:
-            data['cycle'] = self.cycle_number
-            
-        return pd.DataFrame(data)
+#         Returns:
+#             bool: True if data is valid, False otherwise
+#         """
+#         try:
+#             if any(x is None for x in [self.time, self.potential, self.current]):
+#                 return False
+                
+#             if not (len(self.time) == len(self.potential) == len(self.current)):
+#                 return False
+                
+#             # CV-specific validations
+#             if self.scan_rate is not None and self.scan_rate <= 0:
+#                 return False
+                
+#             return True
+#         except Exception:
+#             return False
     
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert CV data to dictionary."""
-        return {
-            'time': self.time.tolist() if self.time is not None else None,
-            'potential': self.potential.tolist() if self.potential is not None else None,
-            'current': self.current.tolist() if self.current is not None else None,
-            'cycle_number': self.cycle_number.tolist() if self.cycle_number is not None else None,
-            'file_path': self.file_path,
-        }
-    
-    def get_peak_currents(self) -> Dict[str, float]:
-        """CV-specific method to find peak currents."""
-        if not self.validate():
-            return {}
+#     def to_dict(self) -> Dict[str, Any]:
+#         """
+#         Convert CV data to dictionary.
+        
+#         Returns:
+#             Dict[str, Any]: Data as dictionary
+#         """
+#         return {
+#             'file_path': self.file_path,
+#             'time': self.time.tolist() if self.time is not None else None,
+#             'potential': self.potential.tolist() if self.potential is not None else None,
+#             'current': self.current.tolist() if self.current is not None else None,
+#             'cycle_number': self.cycle_number.tolist() if self.cycle_number is not None else None,
+#         }
+
+#     def to_dataframe(self) -> pd.DataFrame:
+#         """
+#         Convert CV data to DataFrame.
+        
+#         Returns:
+#             Dict[str, Any]: Data as dictionary
+#         """
+#         data = {
+#             'time_s': self.time,
+#             'potential_V': self.potential, 
+#             'current_A': self.current,
+#         }
+        
+#         if self.cycle_number is not None:
+#             data['cycle'] = self.cycle_number
             
-        return {
-            'anodic_peak_current': np.max(self.current),
-            'cathodic_peak_current': np.min(self.current),
-        }
+#         return pd.DataFrame(data)
+    
+    
+#     # Add additional methods as needed for your technique
+#     # NOTE: No methods for data analysis are included here; 
+#     #       this class is solely for data management. Analysis
+#     #       should be performed in separate analyzer classes.
+#     # ...

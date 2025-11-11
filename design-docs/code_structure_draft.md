@@ -32,7 +32,7 @@ If the whole framework works nicely, this could be published as a small publicat
 - Objects have methods for file loading, data processing, and plotting
 #### A) File Loader
 
-- Define a `FileObject` as a representation of a measurement/experiment that contains all relevant data and metadata
+- Define a `StudyObject` as a representation of a measurement/experiment that contains all relevant data and metadata
 - A **base class** `BaseFile` defines how the final file format is structured internally and what common methods each file requires (e.g., `load()`, `delete()`, `save()`, `from_xarray()`, `to_xarray()`, `from_pandas()`, `to_pandas()`, ... ?)
 - Each file format is implemented as a child class of `BaseFile`,  (e.g., `MprStandardTechniqueFile`, `MprModuloBatFile`, etc.) and each child class processes the specific type into a common data format
 - Common data format should be `netCDF4` and we should rely on the `h5netcdf` and/or `xarray` packages, which are also used by `yadg`
@@ -44,7 +44,7 @@ If the whole framework works nicely, this could be published as a small publicat
 # ========== Common file format representation ==========
 
 @dataclass
-class FileObject:
+class StudyObject:
     data: xr.Dataset
     meta: dict[str, t.Any] = field(default_factory=dict)
     uri: Path | None = None
@@ -79,7 +79,7 @@ class BaseFile(ABC):
     # ---- Factory / Auto-Erkennung ----
 
     @classmethod
-    def open(cls, path: str | Path) -> FileObject:
+    def open(cls, path: str | Path) -> StudyObject:
 	    # load file
 	    pass
 
@@ -87,7 +87,7 @@ class BaseFile(ABC):
 
     @classmethod
     @abstractmethod
-    def load(cls, path: Path) -> FileObject:
+    def load(cls, path: Path) -> StudyObject:
 	    # actual implementation in each child classes
 	    pass
 
@@ -107,23 +107,21 @@ class MprStandardFile(BaseFile):
 
     @classmethod
     @abstractmethod
-    def load(cls, path: Path) -> FileObject:
+    def load(cls, path: Path) -> StudyObject:
 	    # ...
-	    return FileObject
-
-	# etc.
+	    return StudyObject	# etc.
 ```
 
 #### B) Techniques
 
 - Each measurement file can contain data from one or more techniques
-- A **base class** `BaseTechnique` will be used to represent measurement data for a specific technique and will define common methods of techniques (e.g., `load_file(Path)`, `add_file(FileObject)`, `remove_file()`, `preprocess()`, `analyze()`, etc. )
+- A **base class** `BaseTechnique` will be used to represent measurement data for a specific technique and will define common methods of techniques (e.g., `load_file(Path)`, `add_file(StudyObject)`, `remove_file()`, `preprocess()`, `analyze()`, etc. )
 - Specific techniques will be **child classes** of `BaseTechnique` (e.g., `EIS`, `GCPL`, `RDE` etc.) and may contain further technique specific methods
 
 #### C) Cells
 
 - A cell object can represent any electrochemical cell (coin cell, swagelok cell, flow battery, two-electrode setup in beaker, three-electrode setup in beaker, etc.)
-- A **base class** `BaseCell` will be used to represent physical cells and will define common methods (e.g., `set_metadata()`, `get_metadata()`, `add_technique(FileObject)`, `get_technique(FileObject)`, `remove_technique()`)
+- A **base class** `BaseCell` will be used to represent physical cells and will define common methods (e.g., `set_metadata()`, `get_metadata()`, `add_technique(StudyObject)`, `get_technique(StudyObject)`, `remove_technique()`)
 - **Child classes** may be defined to represent the different cell types and add additional methods specific to the cell type (e.g., `set_reference_electrode(name, ref_potential)`, `get_reference_electrode()`, etc. )
 
 #### D) Experiments

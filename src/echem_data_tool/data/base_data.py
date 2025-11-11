@@ -13,6 +13,10 @@ class BaseData(ABC):
     
     This class defines the common interface and basic structure
     for all specific measurement technique data classes.
+    for all specific measurement technique data classes. Methods
+    marked as "abstractmethod" must be implemented by any subclass.
+    Subclasses may also include additional attributes and methods
+    specific to the measurement technique.
     """
     
     file_path: Optional[str] = None
@@ -49,5 +53,22 @@ class BaseData(ABC):
     
     def __post_init__(self):
         """Post-initialization validation."""
+    @abstractmethod
+    def to_dataframe(self) -> pd.DataFrame:
+        """
+        Convert the data to a pandas DataFrame.
+        
+        Returns:
+            pd.DataFrame: Data as DataFrame
+        """
+        pass
+    
+    def __post_init__(self):
+        """
+        Post-initialization validation.
+        
+        This is automatically called after the dataclass is initialized.
+        It ensures that the data is valid upon creation.
+        """
         if not self.validate():
             raise ValueError("Data validation failed during initialization")
